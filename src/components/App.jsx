@@ -1,24 +1,26 @@
 import { ContactList } from './list/list';
 import { Filter } from './filter/filter';
 import { ContactForm } from './form/form';
-import { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { getContacts, getFilter } from './redux/selectors';
+import { addContact, deleteContact } from './redux/contactsSlice';
+import { setFilter } from './redux/filterSlice';
 
 export const App = () => {
-  const [contacts, setContacts] = useState([
-    //działa wszystko poza localStorage gdy mam podane domyślne ustawienia
-    // { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-    // { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-    // { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-    // { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-  ]);
-  const [filter, setFilter] = useState('');
+  // const [contacts, setContacts] = useState([]);
+  // const [filter, setFilter] = useState('');
 
+  const dispatch = useDispatch();
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(getFilter);
+
+  //
   useEffect(() => {
     const storedContacts = JSON.parse(localStorage.getItem('contacts'));
     if (storedContacts && storedContacts.length > 0) {
       console.log(storedContacts);
-      setContacts(storedContacts);
+      dispatch(addContact(storedContacts));
     }
   }, []);
 
@@ -35,21 +37,30 @@ export const App = () => {
       alert(`${name} is already in contacts.`);
       return;
     }
-    setContacts(prevContacts => [...prevContacts, { id, name, number }]);
+    // setContacts(prevContacts => [...prevContacts, { id, name, number }]);
+    dispatch(addContact({ id, name, number }));
   };
 
   const handleDelete = id => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
+    // setContacts(prevContacts =>
+    //   prevContacts.filter(contact => contact.id !== id)
+    // );
+    dispatch(deleteContact(id));
   };
 
-  const filteredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(filter)
+  // const filteredContacts = contacts.filter(contact =>
+  //   contact.name.toLowerCase().includes(filter)
+  // );
+
+  const filteredContacts = contacts.filter(
+    contact =>
+      typeof contact.name === 'string' &&
+      contact.name.toLowerCase().includes(filter)
   );
 
   const handleFilterChange = filterValue => {
-    setFilter(filterValue);
+    // setFilter(filterValue);
+    dispatch(setFilter(filterValue));
   };
 
   return (
@@ -58,21 +69,7 @@ export const App = () => {
       <ContactForm onSubmit={handleSubmit} />
       <h2>Contacts</h2>
       <Filter onFilterChange={handleFilterChange} />
-      <ContactList contacts={filteredContacts} onDelete={handleDelete} />
+      <ContactList con={filteredContacts} onDelete={handleDelete} />
     </>
   );
-};
-
-App.propTypes = {
-  filter: PropTypes.string,
-  handleSubmit: PropTypes.func,
-  handleDelete: PropTypes.func,
-  filteredContacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      name: PropTypes.string,
-      number: PropTypes.string,
-    })
-  ),
-  handleFilterChange: PropTypes.func,
 };
