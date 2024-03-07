@@ -10,15 +10,6 @@ const contactsSlice = createSlice({
       reducer(state, action) {
         state.push(action.payload);
       },
-      prepare(name, number, id) {
-        return {
-          payload: {
-            name,
-            number,
-            id,
-          },
-        };
-      },
     },
     deleteContact(state, action) {
       return state.filter(contact => contact.id !== action.payload);
