@@ -20,9 +20,11 @@ export const App = () => {
     const storedContacts = JSON.parse(localStorage.getItem('contacts'));
     if (storedContacts && storedContacts.length > 0) {
       console.log(storedContacts);
-      dispatch(addContact(storedContacts));
+      storedContacts.forEach(contact => {
+        dispatch(addContact(contact));
+      });
     }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
